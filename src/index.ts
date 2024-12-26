@@ -25,12 +25,16 @@ app.get("/", (req, res) => {
         message: "server is running"
     })
 })
+
 app.use("/api/auth", authRouter);
 app.use("/api/jobcard", jobcardRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/worker", workerRouter);
 app.use("/api/analysis", analysisRouter);
 
+app.get("*", (req, res) => {
+    res.sendFile('/var/www/evee/hitech/hitech-frontend/dist/index.html');
+});
 dbConnect().then(() => {
     app.listen(3000, () => {
         console.log("Server is running on port 3000");

@@ -5,7 +5,6 @@ import { Request, Response } from "express";
 import { handleMultipleFileUploads } from "../utils/uploader";
 import { JobCardImage } from "../models/jobCardImage";
 export const createJobTask = async (req: Request, res: Response): Promise<any> => {
-
     const {
         customerName,
         customerAddress,
@@ -36,16 +35,17 @@ export const createJobTask = async (req: Request, res: Response): Promise<any> =
     }
 
     try {
-
-
         const counter = await Counter.findOneAndUpdate(
             { _id: "jobCardNumber" },
             { $inc: { sequence_value: 1 } },
             { new: true, upsert: true }
         );
 
+        const currentYear = new Date().getFullYear().toString().slice(-2); // Get last two digits of the year
+        const formattedJobCardNumber = `${counter.sequence_value}/${currentYear}`; // Format as counter/year
+
         const jobcard = new JobCard({
-            jobCardNumber: counter.sequence_value,
+            jobCardNumber: formattedJobCardNumber, // Use the formatted job card number
             customerName,
             customerAddress,
             phoneNumber,
@@ -65,7 +65,7 @@ export const createJobTask = async (req: Request, res: Response): Promise<any> =
             warranty,
             jobCardStatus: "Created",
             others: others
-        })
+        });
 
         await jobcard.save();
         return res.status(201).json({ message: "Job card created successfully", success: true, data: jobcard });
@@ -74,7 +74,8 @@ export const createJobTask = async (req: Request, res: Response): Promise<any> =
         console.error(error);
         return res.status(500).json({ message: "Server error", success: false });
     }
-}
+};
+
 
 export const editJobTask = async (req: Request, res: Response): Promise<any> => {
 
